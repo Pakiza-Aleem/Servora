@@ -1,0 +1,12 @@
+.pos-page { display: grid; grid-template-columns: 1fr 380px; gap: var(--space-4); height: 100%; min-height: 0; }
+.pos-menu { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; overflow-y: auto; }
+.pos-search { display: flex; align-items: center; gap: var(--space-2); background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding-left: var(--space-3); } .pos-search input { border: 0; flex: 1; }
+.pos-tabs { display: flex; gap: var(--space-2); overflow-x: auto; padding-bottom: var(--space-1); }
+.pos-menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: var(--space-3); }
+.menu-card { display: flex; flex-direction: column; gap: var(--space-1); text-align: left; padding: var(--space-3); background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; } .menu-card:hover:not(:disabled) { border-color: var(--green-900); } .menu-card:disabled { opacity: .5; }
+.menu-card__img { height: 70px; display: grid; place-items: center; background: var(--grey-100); border-radius: var(--radius-sm); font-family: var(--font-serif); font-size: 2rem; color: var(--sage); }
+.menu-card__desc { font-size: .8rem; flex: 1; } .menu-card__foot { display: flex; justify-content: space-between; font-weight: 500; }
+.pos-cart-panel { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); overflow-y: auto; }
+.cart-lines { flex: 1; min-height: 120px; overflow-y: auto; } .cart-line { padding: var(--space-2) 0; border-bottom: 1px solid var(--border); } .cart-line__top { display: flex; justify-content: space-between; } .cart-line__ctl { display: flex; align-items: center; gap: var(--space-1); } .cart-line__ctl input { flex: 1; min-width: 0; min-height: 36px; font-size: .85rem; }
+@media (max-width: 992px) { .pos-page { grid-template-columns: 1fr; height: auto; } .pos-cart-panel { order: 2; } .pos-menu { overflow: visible; } }
+@media (max-width: 480px) { .pos-menu-grid { grid-template-columns: repeat(2, 1fr); } }

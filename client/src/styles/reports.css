@@ -1,0 +1,5 @@
+.reports-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+.reports-grid .card:first-child { grid-column: 1 / -1; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); } .card-head h3 { margin: 0; }
+.reports-page .chart-box { height: 240px; }
+@media (max-width: 992px) { .reports-grid { grid-template-columns: 1fr; } }

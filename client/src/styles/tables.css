@@ -1,0 +1,4 @@
+.floor { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+.table-tile { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); padding: var(--space-3); min-height: 120px; background: var(--white); border: 1px solid var(--border); border-left: 5px solid var(--success); border-radius: var(--radius); cursor: pointer; text-align: left; }
+.table-tile strong { font-size: 1.3rem; font-family: var(--font-serif); font-weight: 400; }
+.table-tile--occupied { border-left-color: var(--green-900); } .table-tile--reserved { border-left-color: var(--gold); } .table-tile--bill_requested { border-left-color: var(--warning); } .table-tile--sel { outline: 2px solid var(--gold); }

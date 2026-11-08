@@ -1,0 +1,12 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from './app/store.js';
+import App from './App.jsx';
+import { AuthProvider } from './auth.jsx';
+import './styles/variables.css';
+import './styles/global.css';
+import './styles/layout.css';
+createRoot(document.getElementById('root')).render(<Provider store={store}><BrowserRouter><AuthProvider><App /></AuthProvider></BrowserRouter></Provider>);
+import './styles/pages.css';

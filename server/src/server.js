@@ -1,0 +1,10 @@
+import 'dotenv/config';
+import http from 'http';
+import mongoose from 'mongoose';
+import { app } from './app.js';
+import { initSockets } from './sockets/index.js';
+if (!process.env.JWT_SECRET || !process.env.MONGO_URI) throw new Error('Set MONGO_URI and JWT_SECRET in .env');
+await mongoose.connect(process.env.MONGO_URI);
+const server = http.createServer(app);
+initSockets(server, process.env.CLIENT_URL);
+server.listen(process.env.PORT || 5000, () => console.log('SERVORA API on :' + (process.env.PORT || 5000)));

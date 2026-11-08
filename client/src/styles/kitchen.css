@@ -1,0 +1,6 @@
+.kitchen-page { max-width: none; }
+.kitchen-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); align-items: start; }
+.kitchen-col { background: var(--grey-100); border-radius: var(--radius); padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-3); } .kitchen-col h2 { font-size: 1.1rem; margin: 0; } .count { background: var(--green-900); color: var(--white); border-radius: 99px; padding: 0 8px; font-size: .8rem; }
+.kitchen-order-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); } .kitchen-order-card--late { border-color: var(--error); border-width: 2px; }
+.kitchen-order-card header { display: flex; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; } .kitchen-order-card ul { margin: 0; padding-left: var(--space-4); font-size: 1.05rem; } .kitchen-order-card .note { color: var(--warning); font-size: .85rem; }
+@media (max-width: 992px) { .kitchen-board { grid-template-columns: 1fr; } }
