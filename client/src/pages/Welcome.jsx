@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../auth.jsx';
 import '../styles/auth.css';
 
-export default function Welcome() {
+export default function Welcome({ onContinue = () => {} }) {
   const { user } = useAuth();
   return (
     <main className="auth-page auth-page--welcome">
@@ -16,12 +16,12 @@ export default function Welcome() {
             Thoughtful tools for the people who make every meal feel special.
           </p>
           <div className="welcome-actions">
-            <Link className="welcome-action welcome-action--primary" to={user ? '/app' : '/login'}>
+            <Link className="welcome-action welcome-action--primary" to={user ? '/app' : '/login'} onClick={onContinue}>
               <KeyRound size={19} />
               <span><strong>{user ? 'Open Servora' : 'Log in'}</strong><small>{user ? 'Go to your workspace' : 'Access your restaurant'}</small></span>
               <ArrowRight className="welcome-action__arrow" size={18} />
             </Link>
-            <Link className="welcome-action" to="/signup">
+            <Link className="welcome-action" to="/signup" onClick={onContinue}>
               <UserPlus size={19} />
               <span><strong>Sign up</strong><small>Get access to Servora</small></span>
               <ArrowRight className="welcome-action__arrow" size={18} />

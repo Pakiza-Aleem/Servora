@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './auth.jsx';
 import Layout from './components/Layout.jsx';
@@ -23,7 +23,11 @@ export const NAV = [
 export default function App() {
   const { loading, user } = useAuth();
   const location = useLocation();
+  const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   if (loading) return <div className="center-screen">Loading…</div>;
+  if (!welcomeDismissed && !['/login', '/signup'].includes(location.pathname)) {
+    return <Welcome onContinue={() => setWelcomeDismissed(true)} />;
+  }
   if (!user) return (
     <Routes>
       <Route path="/" element={<Welcome />} />
@@ -33,7 +37,7 @@ export default function App() {
     </Routes>
   );
   const allowed = NAV.filter((n) => n.roles.includes(user.role));
-  if (location.pathname === '/') return <Welcome />;
+  if (location.pathname === '/') return <Welcome onContinue={() => setWelcomeDismissed(true)} />;
   if (location.pathname === '/login') return <Navigate to="/app" replace />;
   if (location.pathname === '/signup') return <SignupInfo />;
   if (location.pathname === '/app') return <Navigate to={allowed[0].to} replace />;
