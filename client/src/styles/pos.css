@@ -36,6 +36,9 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
+.pos-tabs > .chip {
+  flex: 0 0 auto;
+}
 .pos-tabs::-webkit-scrollbar {
   display: none;
 }
@@ -371,7 +374,14 @@
     padding: var(--space-3);
   }
   .pos-cart-panel .seg {
+    min-width: 0;
+    max-width: 100%;
     overflow-x: auto;
+  }
+  .pos-cart-panel .seg button {
+    flex: 0 0 auto;
+    padding: 0 var(--space-3);
+    white-space: nowrap;
   }
   .totals {
     font-size: 0.95rem;
@@ -388,12 +398,12 @@
    ═══════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
   .pos-menu-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2);
   }
 
   .menu-card__img {
-    height: 80px;
+    height: 150px;
     font-size: 1.5rem;
   }
   .menu-card__body {
@@ -474,11 +484,11 @@
    ═══════════════════════════════════════════════════════ */
 @media (max-width: 360px) {
   .pos-menu-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-1);
   }
   .menu-card__img {
-    height: 64px;
+    height: 120px;
   }
   .menu-card__body strong {
     font-size: 0.82rem;
