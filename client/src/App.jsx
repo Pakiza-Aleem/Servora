@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './auth.jsx';
 import Layout from './components/Layout.jsx';
 import Login from './pages/Login.jsx';
+import Welcome, { SignupInfo } from './pages/Welcome.jsx';
 import NotFound from './pages/NotFound.jsx';
 const L = { dashboard: lazy(() => import('./pages/Dashboard.jsx')), pos: lazy(() => import('./pages/POS.jsx')), tables: lazy(() => import('./pages/Tables.jsx')), kitchen: lazy(() => import('./pages/Kitchen.jsx')), menu: lazy(() => import('./pages/Menu.jsx')), inventory: lazy(() => import('./pages/Inventory.jsx')), orders: lazy(() => import('./pages/Orders.jsx')), customers: lazy(() => import('./pages/Customers.jsx')), reports: lazy(() => import('./pages/Reports.jsx')), team: lazy(() => import('./pages/Team.jsx')), settings: lazy(() => import('./pages/Settings.jsx')) };
 const M = ['owner', 'manager'];
@@ -22,7 +23,14 @@ export const NAV = [
 export default function App() {
   const { loading, user } = useAuth();
   if (loading) return <div className="center-screen">Loading…</div>;
-  if (!user) return <Routes><Route path="*" element={<Login />} /></Routes>;
+  if (!user) return (
+    <Routes>
+      <Route path="/" element={<Welcome />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<SignupInfo />} />
+      <Route path="*" element={<Login />} />
+    </Routes>
+  );
   const allowed = NAV.filter((n) => n.roles.includes(user.role));
   return (
     <Layout nav={allowed}>
