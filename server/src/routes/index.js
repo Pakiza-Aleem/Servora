@@ -3,16 +3,18 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
 import { auth, allow, httpError } from '../middleware/auth.js';
 import * as os from '../services/orderService.js';
-import { summary } from '../services/reportService.js';
-import multer from 'multer';
-import fs from 'fs';
-import crypto from 'crypto';
+import { summary, fullReport, toCsv } from '../services/reportService.js';
 import { User, Restaurant, MenuItem, MenuCategory, Table, Order, Customer, InventoryItem, StockMovement, AuditLog, Notification, Branch } from '../models.js';
-import { fullReport, toCsv } from '../services/reportService.js';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const r = Router();
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -135,7 +137,7 @@ r.post('/customers', allow(...MGR, 'cashier'), wrap(async (req, res) => res.stat
 r.get('/users', allow(...MGR), wrap(async (req, res) => res.json(await User.find({ restaurant: req.user.restaurant }).select('-passwordHash').lean())));
 r.post('/users', allow('owner'), wrap(async (req, res) => {
   const b = z.object({ name: z.string(), email: z.string().email(), password: z.string().min(8), role: z.enum(['manager', 'cashier', 'kitchen', 'waiter']) }).parse(req.body);
-  const u = await User.create({ name: b.name, email: b.email, role: b.role, restaurant: req.user.restaurant, passwordHash: await bcrypt.hash(b.password, 10) });
+  const u = await User.create({ name: b.name, email: b.email, role: b.role, restaurant: req.user.restaurant, branch: req.user.branch, passwordHash: await bcrypt.hash(b.password, 10) });
   res.status(201).json({ id: u._id });
 }));
 r.patch('/users/:id', allow('owner'), wrap(async (req, res) => {
@@ -174,14 +176,15 @@ r.post('/tables/:id/combine', allow(...MGR, 'cashier', 'waiter'), wrap(async (re
   res.json({ ok: true });
 }));
 
-// ---- Image upload (type + size validated)
-const UP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../uploads');
-fs.mkdirSync(UP, { recursive: true });
-const EXT = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
-const upload = multer({ storage: multer.diskStorage({ destination: UP, filename: (q, f, cb) => cb(null, crypto.randomUUID() + EXT[f.mimetype]) }), limits: { fileSize: 2 * 1024 * 1024 }, fileFilter: (q, f, cb) => cb(null, !!EXT[f.mimetype]) });
+// ---- Image upload (Cloudinary; type + size validated)
+const EXT = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1 };
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 }, fileFilter: (q, f, cb) => cb(null, !!EXT[f.mimetype]) });
+const toCloud = (buf) => new Promise((resolve, reject) =>
+  cloudinary.uploader.upload_stream({ folder: 'servora', resource_type: 'image' }, (e, r) => (e ? reject(e) : resolve(r))).end(buf));
 r.post('/menu/:id/image', allow(...MGR), upload.single('image'), wrap(async (req, res) => {
   if (!req.file) throw httpError(400, 'Upload a JPG, PNG or WebP under 2MB');
-  res.json(await MenuItem.findOneAndUpdate({ _id: req.params.id, restaurant: req.user.restaurant }, { image: '/uploads/' + req.file.filename }, { new: true }));
+  const up = await toCloud(req.file.buffer);
+  res.json(await MenuItem.findOneAndUpdate({ _id: req.params.id, restaurant: req.user.restaurant }, { image: up.secure_url }, { new: true }));
 }));
 
 // ---- Reports
