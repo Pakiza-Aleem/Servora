@@ -1,8 +1,10 @@
 import { ArrowRight, KeyRound, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth.jsx';
 import '../styles/auth.css';
 
 export default function Welcome() {
+  const { user } = useAuth();
   return (
     <main className="auth-page auth-page--welcome">
       <section className="welcome-panel">
@@ -14,9 +16,9 @@ export default function Welcome() {
             Thoughtful tools for the people who make every meal feel special.
           </p>
           <div className="welcome-actions">
-            <Link className="welcome-action welcome-action--primary" to="/login">
+            <Link className="welcome-action welcome-action--primary" to={user ? '/app' : '/login'}>
               <KeyRound size={19} />
-              <span><strong>Log in</strong><small>Access your restaurant</small></span>
+              <span><strong>{user ? 'Open Servora' : 'Log in'}</strong><small>{user ? 'Go to your workspace' : 'Access your restaurant'}</small></span>
               <ArrowRight className="welcome-action__arrow" size={18} />
             </Link>
             <Link className="welcome-action" to="/signup">

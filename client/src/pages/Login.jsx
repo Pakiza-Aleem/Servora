@@ -9,7 +9,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [f, setF] = useState({ email: 'owner@servora.test', password: '' });
   const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
-  const submit = async (e) => { e.preventDefault(); setBusy(true); setErr(''); try { await login(f.email, f.password); navigate('/'); } catch (x) { setErr(errMsg(x)); setBusy(false); } };
+  const submit = async (e) => { e.preventDefault(); setBusy(true); setErr(''); try { await login(f.email, f.password); navigate('/app'); } catch (x) { setErr(errMsg(x)); setBusy(false); } };
   return (
     <main className="auth-page auth-page--welcome">
       <section className="welcome-panel login-panel">
