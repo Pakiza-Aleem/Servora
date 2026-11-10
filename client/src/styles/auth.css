@@ -7,7 +7,7 @@
   color: var(--cream);
   background:
     linear-gradient(110deg, rgba(13, 30, 25, .80), rgba(24, 61, 50, .58) 52%, rgba(19, 32, 27, .38)),
-    url('https://unsplash.com/photos/black-wooden-table-with-chairs-XXigdb3WMmA') center / cover fixed,
+    url('https://images.unsplash.com/photo-1617837965404-1e571e841de2?auto=format&fit=crop&w=1400&q=70') center / cover fixed,
     var(--green-900);
 }
 .welcome-panel {
