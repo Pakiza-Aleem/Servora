@@ -44,6 +44,25 @@ test('uses the official SDK request shape and configured model', async () => {
   }
 });
 
+test('uses minimal thinking for Gemini 3 models to leave room for the full answer', async () => {
+  const originalModel = process.env.GEMINI_MODEL;
+  try {
+    process.env.GEMINI_MODEL = 'gemini-3.6-flash';
+    const client = {
+      interactions: {
+        create: async ({ generation_config }) => {
+          assert.equal(generation_config.thinking_level, 'minimal');
+          return { status: 'completed', output_text: 'Complete response.' };
+        },
+      },
+    };
+    assert.equal(await generateAssistantAnswer('Question', {}, client), 'Complete response.');
+  } finally {
+    if (originalModel === undefined) delete process.env.GEMINI_MODEL;
+    else process.env.GEMINI_MODEL = originalModel;
+  }
+});
+
 test('maps Gemini quota, configuration, and unavailable-model errors', async () => {
   const failingClient = (status) => ({
     interactions: {
