@@ -45,17 +45,20 @@ export const NAV = [
 export default function App() {
   const { loading, user } = useAuth();
   const location = useLocation();
-  const [welcomeDismissed, setWelcomeDismissed] = useState(false);
-  const [splashDone, setSplashDone] = useState(false);
+  const [splashDone, setSplashDone] = useState(() => {
+    const navigationType = window.performance?.getEntriesByType?.('navigation')?.[0]?.type;
+    const initialLoad = !navigationType || navigationType === 'navigate';
+    const authPageRefresh =
+      navigationType === 'reload' && ['/login', '/signup'].includes(window.location.pathname);
+    return !(initialLoad || authPageRefresh);
+  });
   useEffect(() => {
+    if (splashDone) return undefined;
     const timer = window.setTimeout(() => setSplashDone(true), 4000);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [splashDone]);
   if (!splashDone) return <SplashScreen />;
   if (loading) return <LoadingScreen />;
-  if (!welcomeDismissed && !['/login', '/signup'].includes(location.pathname)) {
-    return <Welcome onContinue={() => setWelcomeDismissed(true)} />;
-  }
   if (!user) return (
     <Routes>
       <Route path="/" element={<Welcome />} />
@@ -65,9 +68,9 @@ export default function App() {
     </Routes>
   );
   const allowed = NAV.filter((n) => n.roles.includes(user.role));
-  if (location.pathname === '/') return <Welcome onContinue={() => setWelcomeDismissed(true)} />;
+  if (location.pathname === '/') return <Welcome />;
   if (location.pathname === '/login') return <Navigate to="/app" replace />;
-  if (location.pathname === '/signup') return <SignupInfo />;
+  if (location.pathname === '/signup') return <Navigate to="/app" replace />;
   if (location.pathname === '/app') return <Navigate to={allowed[0].to} replace />;
   return (
     <Layout nav={allowed}>
