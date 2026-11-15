@@ -93,7 +93,7 @@ export default function AiAssistant() {
             {busy && (
               <div className="ai-message ai-message--assistant ai-message--loading" role="status">
                 <LoaderCircle size={17} />
-                <span>Looking at your business data…</span>
+                <span>SERVORA AI is preparing a complete answer…</span>
               </div>
             )}
             {error && <p className="ai-assistant__error" role="alert">{error}</p>}
