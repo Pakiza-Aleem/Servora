@@ -11,8 +11,8 @@
     var(--green-900);
 }
 .welcome-panel {
-  width: min(100%, 1120px);
-  min-height: min(700px, calc(100vh - 3rem));
+  width: min(100%, 960px);
+  min-height: min(600px, calc(100vh - 4rem));
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -27,7 +27,7 @@
 .auth-hero__brand { letter-spacing: .25em; color: var(--gold); text-decoration: none; }
 .welcome-panel__content { width: min(100%, 540px); padding: 3rem 0 2rem; }
 .welcome-eyebrow { margin: 0 0 var(--space-3); color: #e4c88f; font-size: .78rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
-.welcome-panel h1 { margin: 0; font-size: clamp(2.8rem, 6vw, 5.3rem); line-height: 1.04; text-wrap: balance; }
+.welcome-panel h1 { margin: 0; font-size: clamp(2.8rem, 5vw, 4.6rem); line-height: 1.04; text-wrap: balance; }
 .welcome-copy { max-width: 420px; margin: var(--space-4) 0 var(--space-5); color: rgba(255, 255, 255, .82); font-size: 1.05rem; line-height: 1.7; }
 .welcome-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 .welcome-action {

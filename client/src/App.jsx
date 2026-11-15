@@ -1,5 +1,6 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Heart } from 'lucide-react';
 import { useAuth } from './auth.jsx';
 import Layout from './components/Layout.jsx';
 import Login from './pages/Login.jsx';
@@ -7,6 +8,27 @@ import Welcome, { SignupInfo } from './pages/Welcome.jsx';
 import NotFound from './pages/NotFound.jsx';
 const L = { dashboard: lazy(() => import('./pages/Dashboard.jsx')), pos: lazy(() => import('./pages/POS.jsx')), tables: lazy(() => import('./pages/Tables.jsx')), kitchen: lazy(() => import('./pages/Kitchen.jsx')), menu: lazy(() => import('./pages/Menu.jsx')), inventory: lazy(() => import('./pages/Inventory.jsx')), orders: lazy(() => import('./pages/Orders.jsx')), customers: lazy(() => import('./pages/Customers.jsx')), reports: lazy(() => import('./pages/Reports.jsx')), team: lazy(() => import('./pages/Team.jsx')), settings: lazy(() => import('./pages/Settings.jsx')) };
 const M = ['owner', 'manager'];
+function LoadingScreen() {
+  return (
+    <div className="loading-screen" role="status" aria-live="polite">
+      <div className="loading-screen__spinner" aria-hidden="true" />
+      <p>Loading…</p>
+    </div>
+  );
+}
+function SplashScreen() {
+  return (
+    <div className="splash-screen" role="status" aria-label="Starting Servora">
+      <div className="splash-screen__mark">S</div>
+      <p className="splash-screen__brand">SERVORA</p>
+      <p className="splash-screen__tagline">Made for gracious service</p>
+      <span className="splash-screen__glow" aria-hidden="true" />
+      <p className="splash-screen__footer">
+        Made with <Heart size={14} fill="currentColor" aria-hidden="true" /> by Pakiza Aleem
+      </p>
+    </div>
+  );
+}
 export const NAV = [
   { to: '/dashboard', label: 'Overview', icon: 'LayoutDashboard', roles: M, el: 'dashboard' },
   { to: '/pos', label: 'POS Terminal', icon: 'ReceiptText', roles: [...M, 'cashier', 'waiter'], el: 'pos' },
@@ -24,7 +46,13 @@ export default function App() {
   const { loading, user } = useAuth();
   const location = useLocation();
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
-  if (loading) return <div className="center-screen">Loading…</div>;
+  const [splashDone, setSplashDone] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSplashDone(true), 4000);
+    return () => window.clearTimeout(timer);
+  }, []);
+  if (!splashDone) return <SplashScreen />;
+  if (loading) return <LoadingScreen />;
   if (!welcomeDismissed && !['/login', '/signup'].includes(location.pathname)) {
     return <Welcome onContinue={() => setWelcomeDismissed(true)} />;
   }
@@ -43,7 +71,7 @@ export default function App() {
   if (location.pathname === '/app') return <Navigate to={allowed[0].to} replace />;
   return (
     <Layout nav={allowed}>
-      <Suspense fallback={<div className="empty">Loading…</div>}>
+      <Suspense fallback={<LoadingScreen />}>
         <Routes>
           {allowed.map((n) => { const P = L[n.el]; return <Route key={n.to} path={n.to} element={<P />} />; })}
           <Route path="*" element={<NotFound />} />
