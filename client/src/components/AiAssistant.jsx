@@ -32,7 +32,7 @@ export default function AiAssistant() {
     setError('');
     setBusy(true);
     try {
-      const { data } = await api.post('/ai/assistant', { question: prompt });
+      const { data } = await api.post('/ai/assistant', { question: prompt }, { timeout: 90000 });
       if (typeof data.answer !== 'string' || !data.answer.trim()) {
         throw new Error('SERVORA AI returned an empty response. Please try again.');
       }

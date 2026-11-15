@@ -21,10 +21,10 @@ test('uses the official SDK request shape and configured model', async () => {
   try {
     process.env.GEMINI_MODEL = 'gemini-test-model';
     const client = {
-      models: {
-        generateContent: async (options) => {
+      interactions: {
+        create: async (options) => {
           request = options;
-          return { text: 'Verified response.' };
+          return { status: 'completed', output_text: 'Verified response.' };
         },
       },
     };
@@ -33,9 +33,11 @@ test('uses the official SDK request shape and configured model', async () => {
       'Verified response.',
     );
     assert.equal(request.model, 'gemini-test-model');
-    assert.match(request.contents, /Sales this week/);
-    assert.match(request.contents, /"currency":"PKR"/);
-    assert.equal(request.config.maxOutputTokens, 500);
+    assert.match(request.input, /Sales this week/);
+    assert.match(request.input, /"currency":"PKR"/);
+    assert.equal(request.store, false);
+    assert.equal(request.generation_config.max_output_tokens, 1200);
+    assert.equal('temperature' in request.generation_config, false);
   } finally {
     if (originalModel === undefined) delete process.env.GEMINI_MODEL;
     else process.env.GEMINI_MODEL = originalModel;
@@ -44,8 +46,8 @@ test('uses the official SDK request shape and configured model', async () => {
 
 test('maps Gemini quota, configuration, and unavailable-model errors', async () => {
   const failingClient = (status) => ({
-    models: {
-      generateContent: async () => {
+    interactions: {
+      create: async () => {
         throw Object.assign(new Error('Provider request failed'), { status });
       },
     },
@@ -58,6 +60,8 @@ test('maps Gemini quota, configuration, and unavailable-model errors', async () 
 });
 
 test('rejects empty Gemini responses', async () => {
-  const client = { models: { generateContent: async () => ({ text: '  ' }) } };
+  const client = { interactions: { create: async () => ({ status: 'completed', output_text: '  ' }) } };
   await assert.rejects(generateAssistantAnswer('Question', {}, client), { status: 502 });
+  const incompleteClient = { interactions: { create: async () => ({ status: 'incomplete', output_text: 'Partial response' }) } };
+  await assert.rejects(generateAssistantAnswer('Question', {}, incompleteClient), { status: 502 });
 });

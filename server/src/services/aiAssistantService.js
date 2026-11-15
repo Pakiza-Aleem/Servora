@@ -5,7 +5,7 @@ import { buildBusinessSnapshot } from './aiBusinessDataService.js';
 const DEFAULT_MODEL = 'gemini-3.6-flash';
 
 const SYSTEM_INSTRUCTION = `You are SERVORA AI, a read-only restaurant business assistant for owners and managers.
-Answer in plain, concise language and keep responses short.
+Answer in plain, concise language and keep responses short: use at most five bullets.
 Use only the supplied verified business data for sales figures, comparisons, item performance, stock quantities, and business hours. Never invent or estimate a figure. Do not recalculate supplied financial values; quote the precomputed values and currency as given. Gross revenue includes tax; net sales are gross revenue less refunds and tax.
 If the data does not contain the answer, clearly say it is unavailable. Distinguish observed patterns from possible explanations; do not claim a cause for a sales change without evidence.
 Waste tracking is not available unless the data explicitly says otherwise. You may offer general, clearly labeled recommendations, but do not claim they are based on recorded waste.
@@ -28,15 +28,16 @@ const getGeminiModel = () => {
 
 export async function generateAssistantAnswer(question, snapshot, client = getGeminiClient()) {
   let response;
+  const model = getGeminiModel();
+  const generationConfig = { max_output_tokens: 1200 };
+  if (/^gemini-[34]\./.test(model)) generationConfig.thinking_level = 'minimal';
   try {
-    response = await client.models.generateContent({
-      model: getGeminiModel(),
-      contents: `Question:\n${question}\n\nVerified business data (JSON):\n${JSON.stringify(snapshot)}`,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.2,
-        maxOutputTokens: 500,
-      },
+    response = await client.interactions.create({
+      model,
+      input: `Question:\n${question}\n\nVerified business data (JSON):\n${JSON.stringify(snapshot)}`,
+      system_instruction: SYSTEM_INSTRUCTION,
+      store: false,
+      generation_config: generationConfig,
     });
   } catch (error) {
     const status = Number(error?.status || error?.response?.status || error?.code);
@@ -53,7 +54,10 @@ export async function generateAssistantAnswer(question, snapshot, client = getGe
     throw httpError(502, 'SERVORA AI could not respond right now. Please try again later.');
   }
 
-  const answer = typeof response?.text === 'string' ? response.text.trim() : '';
+  if (response?.status !== 'completed') {
+    throw httpError(502, 'SERVORA AI could not finish that response. Please try again.');
+  }
+  const answer = typeof response?.output_text === 'string' ? response.output_text.trim() : '';
   if (!answer) throw httpError(502, 'SERVORA AI returned an empty response. Please try again.');
   return answer;
 }
