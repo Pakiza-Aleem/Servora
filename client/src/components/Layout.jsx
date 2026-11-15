@@ -5,6 +5,7 @@ import * as Icons from 'lucide-react';
 import { useAuth } from '../auth.jsx';
 import { api, connectSocket } from '../api.js';
 import { notifActions } from '../app/store.js';
+import AiAssistant from './AiAssistant.jsx';
 export default function Layout({ nav, children }) {
   const { user, restaurant, logout } = useAuth();
   const [open, setOpen] = useState(false); const [bell, setBell] = useState(false); const [branch, setBranch] = useState('');
@@ -40,6 +41,7 @@ export default function Layout({ nav, children }) {
         </header>
         <main className="content">{children}</main>
       </div>
+      {['owner', 'manager'].includes(user.role) && <AiAssistant />}
     </div>
   );
 }

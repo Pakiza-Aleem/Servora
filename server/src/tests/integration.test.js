@@ -7,6 +7,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 process.env.JWT_SECRET = 'test-secret';
 const M = await import('../models.js');
 const svc = await import('../services/orderService.js');
+const { buildBusinessSnapshot } = await import('../services/aiBusinessDataService.js');
 const { app } = await import('../app.js');
 let mongod, server, base; const u = {}; let item, flour;
 before(async () => {
@@ -48,4 +49,73 @@ test('role-based access over HTTP', async () => {
   const get = (cookie) => fetch(`${base}/api/dashboard/summary`, { headers: { cookie } });
   assert.equal((await get(await login('cashier@t.io'))).status, 403);
   assert.equal((await get(await login('owner@t.io'))).status, 200);
+});
+test('AI business snapshot summarizes sales and stock from MongoDB', async () => {
+  const restaurant = await M.Restaurant.create({ name: 'AI Snapshot', taxRate: 0 });
+  const ingredient = await M.InventoryItem.create({
+    restaurant: restaurant._id,
+    name: 'AI Test Rice',
+    unit: 'kg',
+    quantity: 1,
+    minStock: 1,
+  });
+  const menuItem = await M.MenuItem.create({
+    restaurant: restaurant._id,
+    name: 'AI Test Soup',
+    price: 100,
+    recipe: [{ ingredient: ingredient._id, qty: 1 }],
+  });
+  const testUser = { ...u.cashier.toObject(), restaurant: restaurant._id };
+  const order = await svc.createOrder(testUser, {
+    type: 'takeaway',
+    items: [{ menuItem: String(menuItem._id), qty: 2 }],
+    idempotencyKey: 'ai-snapshot-order-01',
+  });
+  await svc.addPayment(testUser, order._id, { method: 'cash', received: 200 });
+
+  const snapshot = await buildBusinessSnapshot(restaurant._id);
+  assert.equal(snapshot.currency, 'PKR');
+  assert.equal(snapshot.sales.thisWeekToDate.paidOrders, 1);
+  assert.equal(snapshot.sales.thisWeekToDate.grossRevenue, 200);
+  assert.equal(snapshot.sales.thisWeekToDate.netSales, 200);
+  assert.deepEqual(snapshot.bestSellingItems[0], {
+    name: 'AI Test Soup',
+    unitsSold: 2,
+    grossRevenue: 200,
+  });
+  assert.deepEqual(snapshot.inventory.lowStockItems[0], {
+    name: 'AI Test Rice',
+    unit: 'kg',
+    quantity: -1,
+    minStock: 1,
+  });
+  assert.equal(snapshot.inventory.topIngredientUsageLast30Days[0].quantityUsed, 2);
+  assert.equal(snapshot.dataAvailability.explicitFoodWasteTracking, false);
+  assert.equal(JSON.stringify(snapshot).includes('email'), false);
+});
+test('AI endpoint requires authentication, owner or manager role, and a valid question', async () => {
+  const login = async (email) => (await fetch(`${base}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ email, password: 'pw123456' }),
+  })).headers.get('set-cookie').split(';')[0];
+  const post = (cookie, body) => fetch(`${base}/api/ai/assistant`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', ...(cookie ? { cookie } : {}) },
+    body: JSON.stringify(body),
+  });
+
+  assert.equal((await post(null, { question: 'Sales this week?' })).status, 401);
+  assert.equal((await post(await login('cashier@t.io'), { question: 'Sales this week?' })).status, 403);
+  assert.equal((await post(await login('owner@t.io'), { question: '  ' })).status, 400);
+
+  const originalKey = process.env.GEMINI_API_KEY;
+  delete process.env.GEMINI_API_KEY;
+  try {
+    const response = await post(await login('owner@t.io'), { question: 'Sales this week?' });
+    assert.equal(response.status, 503);
+  } finally {
+    if (originalKey === undefined) delete process.env.GEMINI_API_KEY;
+    else process.env.GEMINI_API_KEY = originalKey;
+  }
 });

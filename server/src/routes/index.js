@@ -6,6 +6,7 @@ import { z } from 'zod';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import { auth, allow, httpError } from '../middleware/auth.js';
+import aiRoutes from './ai.js';
 import * as os from '../services/orderService.js';
 import { summary, fullReport, toCsv } from '../services/reportService.js';
 import { User, Restaurant, MenuItem, MenuCategory, Table, Order, Customer, InventoryItem, StockMovement, AuditLog, Notification, Branch } from '../models.js';
@@ -36,6 +37,7 @@ r.get('/auth/me', auth, wrap(async (req, res) => {
   res.json({ user: { id: req.user._id, name: req.user.name, email: req.user.email, role: req.user.role }, restaurant });
 }));
 
+r.use('/ai', aiRoutes);
 r.use(auth);
 
 // ---- Dashboard
