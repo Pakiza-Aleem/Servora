@@ -11,12 +11,12 @@
     var(--green-900);
 }
 .welcome-panel {
-  width: min(100%, 960px);
-  min-height: min(600px, calc(100vh - 4rem));
+  width: min(88vw, 860px);
+  min-height: min(68vh, 520px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: clamp(1.5rem, 5vw, 4.5rem);
+  padding: clamp(1.5rem, 3.5vw, 3rem);
   border: 1px solid rgba(255, 255, 255, .26);
   border-radius: 20px;
   background: linear-gradient(135deg, rgba(247, 245, 239, .13), rgba(247, 245, 239, .045));
@@ -25,7 +25,7 @@
   backdrop-filter: blur(7px);
 }
 .auth-hero__brand { letter-spacing: .25em; color: var(--gold); text-decoration: none; }
-.welcome-panel__content { width: min(100%, 540px); padding: 3rem 0 2rem; }
+.welcome-panel__content { width: min(100%, 540px); padding: clamp(1.25rem, 3vh, 2.25rem) 0; }
 .welcome-eyebrow { margin: 0 0 var(--space-3); color: #e4c88f; font-size: .78rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
 .welcome-panel h1 { margin: 0; font-size: clamp(2.8rem, 5vw, 4.6rem); line-height: 1.04; text-wrap: balance; }
 .welcome-copy { max-width: 420px; margin: var(--space-4) 0 var(--space-5); color: rgba(255, 255, 255, .82); font-size: 1.05rem; line-height: 1.7; }
@@ -52,7 +52,7 @@
 .welcome-action small { color: var(--text-muted); font-size: .78rem; }
 .welcome-action:not(.welcome-action--primary) small { color: rgba(255, 255, 255, .7); }
 .welcome-action__arrow { flex: 0 0 auto; }
-.welcome-footer { margin: 2rem 0 0; color: rgba(255, 255, 255, .68); font-family: var(--font-serif); font-size: 1.05rem; font-style: italic; }
+.welcome-footer { margin: clamp(1rem, 2.5vh, 2rem) 0 0; color: rgba(255, 255, 255, .68); font-family: var(--font-serif); font-size: 1.05rem; font-style: italic; }
 .signup-panel { align-items: flex-start; }
 .signup-info { width: min(100%, 490px); align-self: center; padding: 2rem 0; }
 .signup-info__icon { width: 48px; height: 48px; display: grid; place-items: center; margin-bottom: var(--space-4); color: #e4c88f; border: 1px solid rgba(228, 200, 143, .45); border-radius: 50%; background: rgba(255, 255, 255, .1); }
@@ -81,7 +81,7 @@
 .login-signup a { color: var(--green-900); font-weight: 700; text-underline-offset: 3px; }
 @media (max-width: 600px) {
   .auth-page--welcome { min-height: 100svh; padding: .75rem; background-attachment: scroll; }
-  .welcome-panel { min-height: calc(100svh - 1.5rem); padding: 1.5rem; border-radius: 16px; }
+  .welcome-panel { width: 100%; min-height: calc(100svh - 1.5rem); padding: 1.5rem; border-radius: 16px; }
   .welcome-panel__content { padding: 2rem 0; }
   .welcome-panel h1 { font-size: clamp(2.7rem, 12vw, 4rem); }
   .welcome-copy { font-size: .95rem; }
